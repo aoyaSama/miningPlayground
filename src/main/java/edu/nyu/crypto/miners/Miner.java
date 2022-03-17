@@ -59,7 +59,7 @@ public interface Miner {
     */
     void resetHashRate();
 
-    
+
     /**
      * @return the inverse of the average ping time
      */
@@ -70,12 +70,12 @@ public interface Miner {
      * @param connectivity
      */
     void setConnectivity(int connectivity);
-    
+
     /**
      * Resets the connectivity of the Miner to its original value
      */
     void resetConnectivity();
-    
+
     /**
      * @return The miners Id
      */

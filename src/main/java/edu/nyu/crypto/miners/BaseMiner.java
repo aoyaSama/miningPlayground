@@ -25,7 +25,7 @@ public abstract class BaseMiner implements Miner {
     public final void setConnectivity(int connectivity) {
         this.connectivity = connectivity;
     }
-    
+
     @Override
     public final void resetConnectivity() {
         this.connectivity = this.originalConnectivity;
@@ -42,7 +42,7 @@ public abstract class BaseMiner implements Miner {
         this.hashRate = this.originalHashRate;
     }
 
-    
+
     @Override
     public final int getHashRate() {
         return hashRate;
