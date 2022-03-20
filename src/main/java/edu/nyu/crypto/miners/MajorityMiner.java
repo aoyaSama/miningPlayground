@@ -11,7 +11,6 @@ import edu.nyu.crypto.blockchain.NetworkStatistics;
  * Student ID:   757038
  */
 public class MajorityMiner extends CompliantMiner implements Miner {
-	private double miningPower;
 	private boolean majority = false;
 
     public MajorityMiner(String id, int hashRate, int connectivity) {
@@ -25,9 +24,9 @@ public class MajorityMiner extends CompliantMiner implements Miner {
 				this.currentHead = block;
 			}
 		} else {
-			if (currentHead == null && block.getHeight() > 5) {
-				currentHead = block;
-			} else if (block != null && block.getHeight() > currentHead.getHeight() + 5 && majority) {
+			// if this miner isn't the majority then announce new block as recongised
+			// otherwise do nothing
+			if (!this.majority && block.getHeight() > currentHead.getHeight()) {
 				this.currentHead = block;
 			}
 		}
@@ -36,12 +35,11 @@ public class MajorityMiner extends CompliantMiner implements Miner {
 	@Override
 	public void networkUpdate(NetworkStatistics statistics) {
         // get the current mining power
-		miningPower = getHashRate() / statistics.getTotalHashRate();
-        // if current mining power is under 51 set majority as false
+		double miningPower = (double) this.getHashRate() / statistics.getTotalHashRate();
+        // if current mining power is under 51 set majority as
 		if (miningPower < 0.51)
-			majority = false;
+			this.majority = false;
 		else
-			majority = true;
+			this.majority = true;
 	}
-
 }

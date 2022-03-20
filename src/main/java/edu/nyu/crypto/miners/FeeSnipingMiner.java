@@ -20,21 +20,23 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
     @Override
 	public void blockMined(Block block, boolean isMinerMe) {
         if(isMinerMe) {
-            if (block.getHeight() > currentHead.getHeight()) {
+            if (block.getHeight() > this.currentHead.getHeight()) {
                 this.currentHead = block;
             }
         }
         else {
             if (block.getHeight() > currentHead.getHeight()) {
-                this.currentHead = block;
+                // System.out.println(block.getBlockValue());
+                // if new block mined check block value
+                if(block.getBlockValue() < 16) {
+                    this.currentHead = block;
+                }
+                // if block reward was unsually high, then announce preivous block
+                else{
+                    Block prevBlock = block.getPreviousBlock();
+                    this.currentHead = prevBlock;
+                }
             }
         }
 	}
-
-	@Override
-	public void networkUpdate(NetworkStatistics statistics) {
-
-	}
-
-
 }
