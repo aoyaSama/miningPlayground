@@ -84,7 +84,7 @@ public class MiningSimulation {
     }
 
 
-    @Test
+    // @Test
     public void simulateSelfishMining1() {
         LOGGER.info("Simulating selfish miner at 40%, no churn");
 
@@ -98,7 +98,7 @@ public class MiningSimulation {
         Assertions.assertThat(attackerProfits).isGreaterThan(.415);
     }
 
-    @Test
+    // @Test
     public void simulateSelfishMining2() {
 
         LOGGER.info("Simulating selfish miner at 31%, with churn");
@@ -114,7 +114,7 @@ public class MiningSimulation {
         Assertions.assertThat(attackerProfits).isGreaterThan(.35);
     }
 
-    @Test
+    // @Test
     public void simulateFeeSniping1() {
 
         LOGGER.info("Simulating fee sniping miner at 30%, with churn");
@@ -130,7 +130,7 @@ public class MiningSimulation {
         Assertions.assertThat(attackerProfits).isGreaterThan(.33);
     }
 
-    @Test
+    // @Test
     public void simulateFeeSniping2() {
 
         LOGGER.info("Simulating fee sniping miner at 29%, with churn");
