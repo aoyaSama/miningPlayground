@@ -12,6 +12,9 @@ import edu.nyu.crypto.blockchain.NetworkStatistics;
  */
 public class FeeSnipingMiner extends CompliantMiner implements Miner {
 
+    private double blockValueTotal = 0.0;
+    private double averageReward = 0.0;
+
     public FeeSnipingMiner(String id, int hashRate, int connectivity) {
         super(id, hashRate, connectivity);
 
@@ -22,14 +25,23 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         if(isMinerMe) {
             if (block.getHeight() > this.currentHead.getHeight()) {
                 this.currentHead = block;
+                calculateAverage();
+                // System.out.println(this.averageReward);
             }
         }
         else {
             if (block.getHeight() > currentHead.getHeight()) {
-                // System.out.println(block.getBlockValue());
+
                 // if new block mined check block value
-                if(block.getBlockValue() < 16) {
+                if(block.getBlockValue() > 4000){
+                    System.out.println("420");
+                    System.out.println(this.averageReward);
+                    System.out.println(block.getHeight());
+                    System.out.println(currentHead.getHeight());
+                }
+                if(block.getBlockValue() < this.averageReward) {
                     this.currentHead = block;
+                    calculateAverage();
                 }
                 // if block reward was unsually high, then announce preivous block
                 else{
@@ -39,4 +51,10 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
             }
         }
 	}
+
+    private void calculateAverage(){
+        this.blockValueTotal += this.currentHead.getBlockValue();
+        this.averageReward = (double) this.blockValueTotal
+            / this.currentHead.getHeight();
+    }
 }
