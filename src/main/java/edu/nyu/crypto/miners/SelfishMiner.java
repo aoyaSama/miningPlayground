@@ -13,8 +13,6 @@ import edu.nyu.crypto.blockchain.NetworkStatistics;
 public class SelfishMiner extends CompliantMiner implements Miner {
 	private Block selfishHead;
 	private boolean attack = false;
-	private boolean profitable = false;
-	private double miningPower;
 
 	public SelfishMiner(String id, int hashRate, int connectivity) {
 		super(id, hashRate, connectivity);
@@ -30,8 +28,8 @@ public class SelfishMiner extends CompliantMiner implements Miner {
 		if(isMinerMe) {
 			if (block.getHeight() > selfishHead.getHeight()) {
 				this.selfishHead = block;
+				// start block withholding attack
 				this.attack = true;
-				// announce mined block if not profitable to attack
 			}
         }
         else {
@@ -47,6 +45,7 @@ public class SelfishMiner extends CompliantMiner implements Miner {
 			if (this.attack &&
 				((selfishAheadBy == 1 && aheadBy > 0) || selfishAheadBy == 0)){
 				this.currentHead = this.selfishHead;
+				// reset attack once block is announced
 				this.attack = false;
 			}
 			// if new block is higher than reset attack
@@ -64,20 +63,4 @@ public class SelfishMiner extends CompliantMiner implements Miner {
 		// also set gensis block as the selfish head
 		this.selfishHead = genesis;
     }
-
-	@Override
-	public void networkUpdate(NetworkStatistics statistics) {
-		// Selfish mining still profitable if a > 33.3%
-		// Only start selfish attack when profitable
-		miningPower = (double) getHashRate() / statistics.getTotalHashRate();
-		if (miningPower > 0.333)
-			this.profitable = true;
-		else
-			this.profitable = false;
-		// if(this.getConnectivity() > 70){
-		// 	System.out.println(this.getConnectivity());
-		// 	System.out.println(statistics.getTotalConnectivity());
-		// }
-		// this.setConnectivity(1);
-	}
 }
