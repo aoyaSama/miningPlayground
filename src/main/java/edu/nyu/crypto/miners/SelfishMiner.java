@@ -29,47 +29,32 @@ public class SelfishMiner extends CompliantMiner implements Miner {
 	public void blockMined(Block block, boolean isMinerMe) {
 		if(isMinerMe) {
 			if (block.getHeight() > selfishHead.getHeight()) {
-				// this.selfishHead = block;
-				int aheadBy = block.getHeight() - selfishHead.getHeight();
-				// attack when profitable and ahead of the announced block
-				if(this.profitable){
-					this.selfishHead = block;
-				}
-				// else{
-				// 	this.selfishHead = block;
-				// 	this.currentHead = block;
-				// }
+				this.selfishHead = block;
+				this.attack = true;
 				// announce mined block if not profitable to attack
-				// // announce when ahead by 2 blocks and is attacking
-				// // announce mined block if not profitable to attack
-
-				// announce when ahead by 2 blocks and is attacking
 			}
         }
         else {
-			int aheadBySelfish = selfishHead.getHeight() - currentHead.getHeight();
-			int aheadByCurrent = block.getHeight() - currentHead.getHeight();
+			int selfishAheadBy = selfishHead.getHeight() - block.getHeight();
+			int aheadBy = block.getHeight() - currentHead.getHeight();
 
-			// if another block is announced when this miner is withholding
-			// 2 or more blocks then announce this miner's block
-			if (aheadByCurrent == 1){
-				// System.out.println("420");
-				this.currentHead = this.selfishHead;
-			}
-			// if new block mined is same height as this miner's
+			// if another block is announced with an height just 1 below this
+			// miner's block height then then announce this miner's secret branch
+			// only if the announced block isn't the same height as public block
+			// or if new block mined is same height as this miner's
 			// unannounced block then set current head as the selfish head
 			// and hope the network choose this miner's block
-			if(block.getHeight() == selfishHead.getHeight()){
+			if (this.attack &&
+				((selfishAheadBy == 1 && aheadBy > 0) || selfishAheadBy == 0)){
 				this.currentHead = this.selfishHead;
+				this.attack = false;
 			}
-
 			// if new block is higher than reset attack
-			if (block.getHeight() > selfishHead.getHeight()) {
-					this.currentHead = block;
-					this.selfishHead = block;
+			else if (block.getHeight() > selfishHead.getHeight()) {
+				this.currentHead = block;
+				this.selfishHead = block;
+				this.attack = false;
 			}
-			//reset attack when blocks are announced
-			// this.attack = false;
         }
 	}
 
@@ -89,5 +74,10 @@ public class SelfishMiner extends CompliantMiner implements Miner {
 			this.profitable = true;
 		else
 			this.profitable = false;
+		// if(this.getConnectivity() > 70){
+		// 	System.out.println(this.getConnectivity());
+		// 	System.out.println(statistics.getTotalConnectivity());
+		// }
+		// this.setConnectivity(1);
 	}
 }

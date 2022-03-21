@@ -95,7 +95,7 @@ public class MiningSimulation {
 
         Map<String, Double> relativeProfits = runSimulation(miners, BlockReward.ONE, ChurnFunction.NO_CHURN);
         double attackerProfits = relativeProfits.get(attacker.getId());
-        // Assertions.assertThat(attackerProfits).isGreaterThan(.415);
+        Assertions.assertThat(attackerProfits).isGreaterThan(.415);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class MiningSimulation {
         Assertions.assertThat(attackerProfits).isGreaterThan(.35);
     }
 
-    @Test
+    // @Test
     public void simulateFeeSniping1() {
 
         LOGGER.info("Simulating fee sniping miner at 30%, with churn");
@@ -130,7 +130,7 @@ public class MiningSimulation {
         Assertions.assertThat(attackerProfits).isGreaterThan(.33);
     }
 
-    @Test
+    // @Test
     public void simulateFeeSniping2() {
 
         LOGGER.info("Simulating fee sniping miner at 29%, with churn");
