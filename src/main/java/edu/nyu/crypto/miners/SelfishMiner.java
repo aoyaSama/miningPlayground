@@ -29,30 +29,30 @@ public class SelfishMiner extends CompliantMiner implements Miner {
 	public void blockMined(Block block, boolean isMinerMe) {
 		if(isMinerMe) {
 			if (block.getHeight() > selfishHead.getHeight()) {
-				this.selfishHead = block;
-				int aheadBy = selfishHead.getHeight() - currentHead.getHeight();
-
+				// this.selfishHead = block;
+				int aheadBy = block.getHeight() - selfishHead.getHeight();
 				// attack when profitable and ahead of the announced block
-				if(aheadBy == 1 && this.profitable){
-					this.attack = true;
+				if(this.profitable){
+					this.selfishHead = block;
 				}
+				// else{
+				// 	this.selfishHead = block;
+				// 	this.currentHead = block;
+				// }
 				// announce mined block if not profitable to attack
-				else if (aheadBy == 1 && !this.profitable){
-					this.currentHead = this.selfishHead;
-				}
+				// // announce when ahead by 2 blocks and is attacking
+				// // announce mined block if not profitable to attack
+
 				// announce when ahead by 2 blocks and is attacking
-				else if (aheadBy == 2 && this.attack){
-					this.currentHead = this.selfishHead;
-					this.attack = false;
-					// System.out.println("attack successful");
-				}
 			}
         }
         else {
-			// if another block is announced around same time second block was mined
-			// but height is lower than this miner's block height, then announce
-			// this miner's block
-			if (block.getHeight() < selfishHead.getHeight()){
+			int aheadBySelfish = selfishHead.getHeight() - currentHead.getHeight();
+			int aheadByCurrent = block.getHeight() - currentHead.getHeight();
+
+			// if another block is announced when this miner is withholding
+			// 2 or more blocks then announce this miner's block
+			if (aheadByCurrent == 1){
 				// System.out.println("420");
 				this.currentHead = this.selfishHead;
 			}
@@ -61,15 +61,15 @@ public class SelfishMiner extends CompliantMiner implements Miner {
 			// and hope the network choose this miner's block
 			if(block.getHeight() == selfishHead.getHeight()){
 				this.currentHead = this.selfishHead;
-				// System.out.println("something");
 			}
+
 			// if new block is higher than reset attack
 			if (block.getHeight() > selfishHead.getHeight()) {
 					this.currentHead = block;
 					this.selfishHead = block;
 			}
 			//reset attack when blocks are announced
-			this.attack = false;
+			// this.attack = false;
         }
 	}
 
