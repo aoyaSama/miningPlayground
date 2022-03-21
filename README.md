@@ -17,6 +17,10 @@ Students should modify the classes MajorityMiner, SelfishMiner and FeeSnipingMin
 
 1. FeeSnipingMiner that forks to try stealing unusually valuable blocks when profitable. That is, when a block with an unusually large transaction fee is mined by a competitor, this miner should temporarily reject that block and try to re-mine a longer fork where it keeps the large transaction fee for itself.
 
+When a block is found containing unusually large transaction fee, the attacking party tries to fork the blockchain by:
+Rejecting this block and mines (including the fat transaction) on top of the previous one.
+If the party mines 2 blocks in a row, the fork becomes the longest chain and party gets to keep the fat transaction for itself.
+
 # References
 
 - [Selfish Mining](https://decentralizedthoughts.github.io/2020-02-26-selfish-mining)

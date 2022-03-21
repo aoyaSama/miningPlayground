@@ -1,8 +1,5 @@
 package edu.nyu.crypto.miners;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import edu.nyu.crypto.blockchain.Block;
 import edu.nyu.crypto.blockchain.NetworkStatistics;
 
@@ -14,14 +11,12 @@ import edu.nyu.crypto.blockchain.NetworkStatistics;
  * Student ID:   757038
  */
 public class FeeSnipingMiner extends CompliantMiner implements Miner {
-    private List<Double> previousRewards = new ArrayList<>();
     private double blockValueTotal = 0.0;
     private double averageReward = 0.0;
-    private double miningPower = 0.0;
+    private double successRate = 0.0;
 
     public FeeSnipingMiner(String id, int hashRate, int connectivity) {
         super(id, hashRate, connectivity);
-
     }
 
     @Override
@@ -29,24 +24,20 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         if(isMinerMe) {
             if (block.getHeight() > this.currentHead.getHeight()) {
                 this.currentHead = block;
-                calculateAverage();
+                calculateAverage(block);
                 // System.out.println(this.averageReward);
             }
         }
         else {
             if (block.getHeight() > currentHead.getHeight()) {
-
                 // if new block mined check block value
-                // if(block.getBlockValue() > 4000){
-                //     System.out.println("420");
-                //     System.out.println(this.averageReward);
-                //     System.out.println(block.getHeight());
-                //     System.out.println(currentHead.getHeight());
+                // if(block.getBlockValue() < 1){
+                //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
                 // }
-                // if(block.getBlockValue() < this.averageReward) {
-                if(block.getBlockValue() < 32) {
+                if(block.getBlockValue() < this.averageReward/successRate) {
+                // if(block.getBlockValue()  < 32) {
                     this.currentHead = block;
-                    calculateAverage();
+                    calculateAverage(block);
                 }
                 // if block reward was unsually high, then announce preivous block
                 else{
@@ -57,16 +48,47 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         }
 	}
 
-    private void calculateAverage(){
-        this.blockValueTotal += this.currentHead.getBlockValue();
+    private void calculateAverage(Block block) {
+        // if(this.currentHead.getBlockValue() > this.averageReward){
+        //     this.blockValueTotal += this.averageReward;
+        // }
+        // else{
+        //     this.blockValueTotal += this.currentHead.getBlockValue();
+        // }
+        // this.blockValueTotal += this.currentHead.getBlockValue() * this.miningPower;
+        // if(currentHead.getHeight() > this.previousHeight){
+        //     this.blockValueTotal += block.getBlockValue();
+        //     this.averageReward = (double) this.blockValueTotal
+        //         / this.currentHead.getHeight();
+        //     this.previousHeight = currentHead.getHeight();
+        // }
+        this.blockValueTotal += block.getBlockValue();
         this.averageReward = (double) this.blockValueTotal
             / this.currentHead.getHeight();
+        // if( this.averageReward > 25){
+        //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
+        //     System.out.println("current height " + block.getHeight());
+        // }
+    }
+
+
+    @Override
+    public void initialize(Block genesis, NetworkStatistics networkStatistics) {
+        this.currentHead = genesis;
+
+        // reset per simulation
+        this.blockValueTotal = 0.0;
+        this.averageReward = 0.0;
     }
 
 
     @Override
 	public void networkUpdate(NetworkStatistics statistics) {
         // get the current mining power
-		miningPower = (double) this.getHashRate() / statistics.getTotalHashRate();
+		double miningPower = (double) this.getHashRate()
+            / statistics.getTotalHashRate();
+
+        // chance of succeeding if every other miner is honest
+        successRate = Math.pow(miningPower/(1-miningPower), 2);
 	}
 }

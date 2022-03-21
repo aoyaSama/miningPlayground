@@ -33,6 +33,13 @@ public class MajorityMiner extends CompliantMiner implements Miner {
 	}
 
 	@Override
+    public void initialize(Block genesis, NetworkStatistics networkStatistics) {
+        this.currentHead = genesis;
+		// reset per simulation
+		this.majority = false;
+    }
+
+	@Override
 	public void networkUpdate(NetworkStatistics statistics) {
         // get the current mining power
 		double miningPower = (double) this.getHashRate() / statistics.getTotalHashRate();

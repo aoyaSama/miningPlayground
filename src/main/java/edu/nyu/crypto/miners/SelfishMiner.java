@@ -62,5 +62,7 @@ public class SelfishMiner extends CompliantMiner implements Miner {
         this.currentHead = genesis;
 		// also set gensis block as the selfish head
 		this.selfishHead = genesis;
+		// reset per simulation
+		this.attack = false;
     }
 }
