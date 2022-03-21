@@ -26,7 +26,7 @@ public class MajorityMiner extends CompliantMiner implements Miner {
 		} else {
 			// if this miner isn't the majority then announce new block as recongised
 			// otherwise do nothing
-			if (!this.majority && block.getHeight() > currentHead.getHeight()) {
+			if (!this.majority && (block.getHeight() - currentHead.getHeight() > 6)) {
 				this.currentHead = block;
 			}
 		}

@@ -1,5 +1,8 @@
 package edu.nyu.crypto.miners;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import edu.nyu.crypto.blockchain.Block;
 import edu.nyu.crypto.blockchain.NetworkStatistics;
 
@@ -11,9 +14,10 @@ import edu.nyu.crypto.blockchain.NetworkStatistics;
  * Student ID:   757038
  */
 public class FeeSnipingMiner extends CompliantMiner implements Miner {
-
+    private List<Double> previousRewards = new ArrayList<>();
     private double blockValueTotal = 0.0;
     private double averageReward = 0.0;
+    private double miningPower = 0.0;
 
     public FeeSnipingMiner(String id, int hashRate, int connectivity) {
         super(id, hashRate, connectivity);
@@ -33,13 +37,14 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
             if (block.getHeight() > currentHead.getHeight()) {
 
                 // if new block mined check block value
-                if(block.getBlockValue() > 4000){
-                    System.out.println("420");
-                    System.out.println(this.averageReward);
-                    System.out.println(block.getHeight());
-                    System.out.println(currentHead.getHeight());
-                }
-                if(block.getBlockValue() < this.averageReward) {
+                // if(block.getBlockValue() > 4000){
+                //     System.out.println("420");
+                //     System.out.println(this.averageReward);
+                //     System.out.println(block.getHeight());
+                //     System.out.println(currentHead.getHeight());
+                // }
+                // if(block.getBlockValue() < this.averageReward) {
+                if(block.getBlockValue() < 32) {
                     this.currentHead = block;
                     calculateAverage();
                 }
@@ -57,4 +62,11 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         this.averageReward = (double) this.blockValueTotal
             / this.currentHead.getHeight();
     }
+
+
+    @Override
+	public void networkUpdate(NetworkStatistics statistics) {
+        // get the current mining power
+		miningPower = (double) this.getHashRate() / statistics.getTotalHashRate();
+	}
 }
