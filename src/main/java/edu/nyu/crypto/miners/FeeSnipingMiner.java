@@ -79,6 +79,7 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         // reset per simulation
         this.blockValueTotal = 0.0;
         this.averageReward = 0.0;
+        this.successRate = 0.0;
     }
 
 
