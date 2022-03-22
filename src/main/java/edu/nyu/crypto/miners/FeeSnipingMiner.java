@@ -11,6 +11,8 @@ import edu.nyu.crypto.blockchain.NetworkStatistics;
  * Student ID:   757038
  */
 public class FeeSnipingMiner extends CompliantMiner implements Miner {
+    private Block snipeBlock;
+    private Block check;
     private double blockValueTotal = 0.0;
     private double averageReward = 0.0;
     private double successRate = 0.0;
@@ -24,26 +26,57 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         if(isMinerMe) {
             if (block.getHeight() > this.currentHead.getHeight()) {
                 this.currentHead = block;
+                this.check = block;
+                if(snipeBlock.getHeight() - block.getHeight() == 0){
+
+                }
+                // snipeBlock = block;
                 calculateAverage(block);
-                // System.out.println(this.averageReward);
+
+                if( this.currentHead.getHeight() == this.snipeBlock.getHeight()){
+                    System.out.println("Gottem, block h " + block.getHeight());
+                }
+
+                // if( block.getBlockValue() > 500){
+                //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
+                //     System.out.println("current height " + block.getHeight());
+                // }
             }
         }
         else {
             if (block.getHeight() > currentHead.getHeight()) {
+                // if( this.currentHead.getHeight() == this.snipeHead.getHeight()){
+                //     System.out.println("did not Gottem");
+                // }
+                // if( block.getBlockValue() > 25 && block.getHeight() < 50){
+                //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
+                //     System.out.println("current height " + block.getHeight());
+                // }
                 // if new block mined check block value
                 // if(block.getBlockValue() < 1){
                 //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
                 // }
-                if(block.getBlockValue() < this.averageReward/successRate) {
-                // if(block.getBlockValue()  < 32) {
+                int aheadBy = block.getHeight() - this.snipeBlock.getHeight();
+                // if(aheadBy > 5){
+                //     System.out.println("did not Gottem");
+                // }
+                if(block.getHeight() == this.snipeBlock.getHeight() ||
+                    block.getBlockValue() < this.averageReward/successRate) {
+                // if(block.getBlockValue()  < 22) {
                     this.currentHead = block;
                     calculateAverage(block);
                 }
                 // if block reward was unsually high, then announce preivous block
                 else{
+                    System.out.println("Snipe, block h " + block.getHeight());
+                    snipeBlock = block;
                     Block prevBlock = block.getPreviousBlock();
                     this.currentHead = prevBlock;
                 }
+                /**
+                 * Check if network accepts the previous, if it did, then
+                 * work from new, if didn't, start from old block
+                 */
             }
         }
 	}
@@ -64,7 +97,15 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         // }
         this.blockValueTotal += block.getBlockValue();
         this.averageReward = (double) this.blockValueTotal
-            / this.currentHead.getHeight();
+                / this.currentHead.getHeight();
+        if(this.averageReward > block.getHeight()){
+            this.averageReward = block.getHeight();
+        }
+        // else{
+        //     this.averageReward = (double) this.blockValueTotal
+        //         / this.currentHead.getHeight();
+        // }
+
         // if( this.averageReward > 25){
         //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
         //     System.out.println("current height " + block.getHeight());
@@ -75,6 +116,7 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
     @Override
     public void initialize(Block genesis, NetworkStatistics networkStatistics) {
         this.currentHead = genesis;
+        this.snipeBlock = genesis;
 
         // reset per simulation
         this.blockValueTotal = 0.0;
