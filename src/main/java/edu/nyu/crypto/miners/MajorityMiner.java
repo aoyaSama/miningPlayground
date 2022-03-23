@@ -43,10 +43,13 @@ public class MajorityMiner extends CompliantMiner implements Miner {
 	public void networkUpdate(NetworkStatistics statistics) {
         // get the current mining power
 		double miningPower = (double) this.getHashRate() / statistics.getTotalHashRate();
-        // if current mining power is under 51 set majority as
-		if (miningPower < 0.51)
-			this.majority = false;
-		else
+        // if current mining power is above 50 set majority as true
+		if(miningPower > 0.5 & miningPower < 0.51)
+			System.out.println("mum");
+
+		if (miningPower > 0.50)
 			this.majority = true;
+		else
+			this.majority = false;
 	}
 }
