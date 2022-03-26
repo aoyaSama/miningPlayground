@@ -26,14 +26,14 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         if(isMinerMe) {
             if (block.getHeight() > this.currentHead.getHeight()) {
                 this.currentHead = block;
-                this.check = block;
+                this.snipeBlock = block;
                 if(snipeBlock.getHeight() - block.getHeight() == 0){
 
                 }
                 // snipeBlock = block;
                 calculateAverage(block);
 
-                if( this.currentHead.getHeight() == this.snipeBlock.getHeight()){
+                if(this.currentHead.getHeight() == this.snipeBlock.getHeight()){
                     System.out.println("Gottem, block h " + block.getHeight());
                 }
 

@@ -17,6 +17,7 @@ public class MajorityMiner extends CompliantMiner implements Miner {
         super(id, hashRate, connectivity);
     }
 
+
 	@Override
 	public void blockMined(Block block, boolean isMinerMe) {
 		if (isMinerMe) {
@@ -24,13 +25,14 @@ public class MajorityMiner extends CompliantMiner implements Miner {
 				this.currentHead = block;
 			}
 		} else {
-			// if this miner isn't the majority then announce new block as recongised
-			// otherwise do nothing
-			if (!this.majority && (block.getHeight() - currentHead.getHeight() > 6)) {
+			// if this miner doesn't hold the majority of mining power and
+			// the public chain caught up to the current head's height by 2 blocks
+			if (!this.majority && (block.getHeight() - currentHead.getHeight()> 2)){
 				this.currentHead = block;
 			}
 		}
 	}
+
 
 	@Override
     public void initialize(Block genesis, NetworkStatistics networkStatistics) {
@@ -44,9 +46,6 @@ public class MajorityMiner extends CompliantMiner implements Miner {
         // get the current mining power
 		double miningPower = (double) this.getHashRate() / statistics.getTotalHashRate();
         // if current mining power is above 50 set majority as true
-		if(miningPower > 0.5 & miningPower < 0.51)
-			System.out.println("mum");
-
 		if (miningPower > 0.50)
 			this.majority = true;
 		else
