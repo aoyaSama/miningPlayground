@@ -6,7 +6,7 @@ Students should modify the classes MajorityMiner, SelfishMiner and FeeSnipingMin
 1. MajorityMiner : that performs a 51% attack if it is capable.
     - Attack becoms feasible when:
         - Malicious party/miner/mining pool gas majority of the hash power, α > 0.5
-        - Mining on a fork that's not 2 blocks behind the longest chain
+        - Mining on a fork that's 2 or more blocks longer the public chain
 
 2. SelfishMiner that performs a temporary block withholding attack if profitable.
     - When the attacker finds a block before the rest of the network,
@@ -15,10 +15,10 @@ Students should modify the classes MajorityMiner, SelfishMiner and FeeSnipingMin
       - The public branch is one block behind the attacker's secret branch.
       - The public branch and attacker's branch are the same height, then both are announced to the network. Letting the network decide which branch to work on.
 
-3.  FeeSnipingMiner that forks to try stealing unusually valuable blocks when profitable. 
+3.  FeeSnipingMiner that forks to try stealing unusually valuable blocks when profitable.
     - That is, when a block with an unusually large transaction fee is mined by a competitor, the attacker should temporarily reject that block and try to re-mine a longer fork where it keeps the large transaction fee for itself.
     - For this assignment, unusually large transaction fee is calculated by:
-        
+
 
 When a block is found containing unusually large transaction fee, the attacking party tries to fork the blockchain by:
 Rejecting this block and mines (including the fat transaction) on top of the previous one.

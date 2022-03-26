@@ -20,6 +20,7 @@ public class SelfishMiner extends CompliantMiner implements Miner {
 
 	@Override
 	public Block currentlyMiningAt() {
+		// return the selfishHead to mine from
 		return this.selfishHead;
 	}
 

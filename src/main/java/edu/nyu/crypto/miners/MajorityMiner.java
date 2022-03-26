@@ -26,8 +26,10 @@ public class MajorityMiner extends CompliantMiner implements Miner {
 			}
 		} else {
 			// if this miner doesn't hold the majority of mining power and
-			// the public chain caught up to the current head's height by 2 blocks
-			if (!this.majority && (block.getHeight() - currentHead.getHeight()> 2)){
+			// public chain caught up to the current head's height
+			// by more than 2 blocks
+			if (!this.majority &&
+				(block.getHeight() - currentHead.getHeight() > 2)){
 				this.currentHead = block;
 			}
 		}
@@ -44,8 +46,10 @@ public class MajorityMiner extends CompliantMiner implements Miner {
 	@Override
 	public void networkUpdate(NetworkStatistics statistics) {
         // get the current mining power
-		double miningPower = (double) this.getHashRate() / statistics.getTotalHashRate();
-        // if current mining power is above 50 set majority as true
+		double miningPower = (double) this.getHashRate()
+			/ statistics.getTotalHashRate();
+
+		// if current mining power is above 50 set majority as true
 		if (miningPower > 0.50)
 			this.majority = true;
 		else

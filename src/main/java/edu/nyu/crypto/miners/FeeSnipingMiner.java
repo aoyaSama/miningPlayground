@@ -22,19 +22,34 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
     }
 
     @Override
+	public Block currentlyMiningAt() {
+        if(this.snipeBlock.getHeight() > this.currentHead.getHeight()){
+            return this.currentHead;
+        }
+        else{
+            return this.snipeBlock;
+        }
+		// return the snipeBlock to mine from
+		// return this.snipeBlock;
+	}
+
+    @Override
 	public void blockMined(Block block, boolean isMinerMe) {
         if(isMinerMe) {
             if (block.getHeight() > this.currentHead.getHeight()) {
-                this.currentHead = block;
-                this.snipeBlock = block;
-                if(snipeBlock.getHeight() - block.getHeight() == 0){
-
+                if(snipeBlock.getHeight() == block.getHeight()){
+                    this.snipeBlock = block;
                 }
+                else{
+                    this.snipeBlock = block;
+                    this.currentHead = block;
+                }
+                // this.snipeBlock = block;
                 // snipeBlock = block;
                 calculateAverage(block);
 
                 if(this.currentHead.getHeight() == this.snipeBlock.getHeight()){
-                    System.out.println("Gottem, block h " + block.getHeight());
+                    // System.out.println("Gottem, block h " + block.getHeight());
                 }
 
                 // if( block.getBlockValue() > 500){
@@ -60,16 +75,20 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
                 // if(aheadBy > 5){
                 //     System.out.println("did not Gottem");
                 // }
-                if(block.getHeight() == this.snipeBlock.getHeight() ||
-                    block.getBlockValue() < this.averageReward/successRate) {
-                // if(block.getBlockValue()  < 22) {
+
+                // if this miner didn't mine the block with large reward
+                if(aheadBy == 1 && block.getHeight() != 1){
+                    this.currentHead = block;
+                }
+                // if(block.getHeight() == this.snipeBlock.getHeight() &&
+                else if(block.getBlockValue() < this.averageReward/successRate) {
                     this.currentHead = block;
                     calculateAverage(block);
                 }
                 // if block reward was unsually high, then announce preivous block
                 else{
-                    System.out.println("Snipe, block h " + block.getHeight());
-                    snipeBlock = block;
+                    // System.out.println("Snipe, block h " + block.getHeight());
+                    this.snipeBlock = block;
                     Block prevBlock = block.getPreviousBlock();
                     this.currentHead = prevBlock;
                 }
@@ -99,6 +118,8 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         this.averageReward = (double) this.blockValueTotal
                 / this.currentHead.getHeight();
         if(this.averageReward > block.getHeight()){
+
+            // System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
             this.averageReward = block.getHeight();
         }
         // else{
@@ -132,6 +153,6 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
             / statistics.getTotalHashRate();
 
         // chance of succeeding if every other miner is honest
-        successRate = Math.pow(miningPower/(1-miningPower), 2);
+        this.successRate = Math.pow(miningPower/(1-miningPower), 2);
 	}
 }
