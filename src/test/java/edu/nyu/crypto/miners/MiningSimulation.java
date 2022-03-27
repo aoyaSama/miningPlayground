@@ -127,7 +127,6 @@ public class MiningSimulation {
         BlockReward reward = new LognormalReward(new SimulationRandom(8765));
         Map<String, Double> relativeProfits = runSimulation(miners, reward, ChurnFunction.NO_CHURN);
         double attackerProfits = relativeProfits.get(attacker.getId());
-        // System.out.println("Attacker Block " + attacker.currentHead().getHeight());
         Assertions.assertThat(attackerProfits).isGreaterThan(.33);
     }
 

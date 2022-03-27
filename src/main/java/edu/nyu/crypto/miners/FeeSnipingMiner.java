@@ -1,5 +1,7 @@
 package edu.nyu.crypto.miners;
 
+import java.util.ArrayList;
+
 import edu.nyu.crypto.blockchain.Block;
 import edu.nyu.crypto.blockchain.NetworkStatistics;
 
@@ -12,147 +14,91 @@ import edu.nyu.crypto.blockchain.NetworkStatistics;
  */
 public class FeeSnipingMiner extends CompliantMiner implements Miner {
     private Block snipeBlock;
-    private Block check;
+    private boolean fork;
+    private int advance = 0;
+    private double successRate = 0.0;
+    private int blockHeightTotal = 0;
     private double blockValueTotal = 0.0;
     private double averageReward = 0.0;
-    private double successRate = 0.0;
 
     public FeeSnipingMiner(String id, int hashRate, int connectivity) {
         super(id, hashRate, connectivity);
     }
 
+
     @Override
-	public Block currentlyMiningAt() {
-        if(this.snipeBlock.getHeight() > this.currentHead.getHeight()){
-            return this.currentHead;
+    public void blockMined(Block block, boolean isMinerMe) {
+        if(isMinerMe) {
+            if (block.getHeight() > currentHead.getHeight()) {
+                this.currentHead = block;
+                calculateAverage(block);
+                // advance = currentHead.getHeight() - otherHead.getHeight();
+            }
         }
         else{
-            return this.snipeBlock;
-        }
-		// return the snipeBlock to mine from
-		// return this.snipeBlock;
-	}
-
-    @Override
-	public void blockMined(Block block, boolean isMinerMe) {
-        if(isMinerMe) {
-            if (block.getHeight() > this.currentHead.getHeight()) {
-                if(snipeBlock.getHeight() == block.getHeight()){
-                    this.snipeBlock = block;
+           if (block.getHeight() > snipeBlock.getHeight()) {
+                snipeBlock = block;
+                advance = currentHead.getHeight() - snipeBlock.getHeight();
+                
+                if (!fork) {
+                    // if (fork2Reward > 1.5) {
+                    if (block.getBlockValue() > this.averageReward/successRate) {
+                        // Should we fork longer?
+                        // 1 is ignoring potential rewards from not forking, so we need to choose something higher
+                        // To simplify we give up if we are more than one block behind.
+                        // Optimal behaviour would be to adapt that to the reward.
+                        fork = true;
+                    }
+                    else {
+                        fork = false;
+                        this.currentHead = block;
+                        calculateAverage(block);
+                    }
                 }
-                else{
-                    this.snipeBlock = block;
-                    this.currentHead = block;
-                }
-                // this.snipeBlock = block;
-                // snipeBlock = block;
-                calculateAverage(block);
-
-                if(this.currentHead.getHeight() == this.snipeBlock.getHeight()){
-                    // System.out.println("Gottem, block h " + block.getHeight());
+                else {
+                   if (advance < -1) {
+                       fork = false;
+                       currentHead = snipeBlock;
+                       calculateAverage(block);
+                   }
                 }
 
-                // if( block.getBlockValue() > 500){
-                //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
-                //     System.out.println("current height " + block.getHeight());
-                // }
             }
         }
-        else {
-            if (block.getHeight() > currentHead.getHeight()) {
-                // if( this.currentHead.getHeight() == this.snipeHead.getHeight()){
-                //     System.out.println("did not Gottem");
-                // }
-                // if( block.getBlockValue() > 25 && block.getHeight() < 50){
-                //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
-                //     System.out.println("current height " + block.getHeight());
-                // }
-                // if new block mined check block value
-                // if(block.getBlockValue() < 1){
-                //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
-                // }
-                int aheadBy = block.getHeight() - this.snipeBlock.getHeight();
-                // if(aheadBy > 5){
-                //     System.out.println("did not Gottem");
-                // }
+    }
 
-                // if this miner didn't mine the block with large reward
-                if(aheadBy == 1 && block.getHeight() != 1){
-                    this.currentHead = block;
-                }
-                // if(block.getHeight() == this.snipeBlock.getHeight() &&
-                else if(block.getBlockValue() < this.averageReward/successRate) {
-                    this.currentHead = block;
-                    calculateAverage(block);
-                }
-                // if block reward was unsually high, then announce preivous block
-                else{
-                    // System.out.println("Snipe, block h " + block.getHeight());
-                    this.snipeBlock = block;
-                    Block prevBlock = block.getPreviousBlock();
-                    this.currentHead = prevBlock;
-                }
-                /**
-                 * Check if network accepts the previous, if it did, then
-                 * work from new, if didn't, start from old block
-                 */
-            }
-        }
-	}
 
     private void calculateAverage(Block block) {
-        // if(this.currentHead.getBlockValue() > this.averageReward){
-        //     this.blockValueTotal += this.averageReward;
-        // }
-        // else{
-        //     this.blockValueTotal += this.currentHead.getBlockValue();
-        // }
-        // this.blockValueTotal += this.currentHead.getBlockValue() * this.miningPower;
-        // if(currentHead.getHeight() > this.previousHeight){
-        //     this.blockValueTotal += block.getBlockValue();
-        //     this.averageReward = (double) this.blockValueTotal
-        //         / this.currentHead.getHeight();
-        //     this.previousHeight = currentHead.getHeight();
-        // }
         this.blockValueTotal += block.getBlockValue();
+        this.blockHeightTotal += 1;
         this.averageReward = (double) this.blockValueTotal
-                / this.currentHead.getHeight();
+                / this.blockHeightTotal;
         if(this.averageReward > block.getHeight()){
 
             // System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
-            this.averageReward = block.getHeight();
+            // this.averageReward = 1;
+            // this.averageReward = block.getHeight();
         }
-        // else{
-        //     this.averageReward = (double) this.blockValueTotal
-        //         / this.currentHead.getHeight();
-        // }
-
-        // if( this.averageReward > 25){
-        //     System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
-        //     System.out.println("current height " + block.getHeight());
-        // }
     }
 
 
     @Override
     public void initialize(Block genesis, NetworkStatistics networkStatistics) {
-        this.currentHead = genesis;
-        this.snipeBlock = genesis;
-
-        // reset per simulation
-        this.blockValueTotal = 0.0;
-        this.averageReward = 0.0;
-        this.successRate = 0.0;
+        fork = false;
+        advance = 0;
+        currentHead = genesis;
+        snipeBlock = genesis;
     }
 
 
     @Override
-	public void networkUpdate(NetworkStatistics statistics) {
+    public void networkUpdate(NetworkStatistics statistics) {
         // get the current mining power
 		double miningPower = (double) this.getHashRate()
             / statistics.getTotalHashRate();
 
         // chance of succeeding if every other miner is honest
         this.successRate = Math.pow(miningPower/(1-miningPower), 2);
-	}
+        // this.successRate = Math.pow(miningPower, 2);
+    }
 }

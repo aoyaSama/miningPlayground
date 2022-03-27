@@ -3,7 +3,7 @@ package edu.nyu.crypto.miners;
 import edu.nyu.crypto.blockchain.Block;
 import edu.nyu.crypto.blockchain.NetworkStatistics;
 
-public class CompliantMiner extends BaseMiner implements Miner {
+public class CompliantMiner extends BaseMiner {
     protected Block currentHead;
 
     public CompliantMiner(String id, int hashRate, int connectivity) {

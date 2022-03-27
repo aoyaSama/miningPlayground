@@ -79,7 +79,8 @@ public class BitcoinNetwork {
         }
         double totalRewards=minedRewards.values().stream().mapToDouble(Double::doubleValue).sum();
         minedRewards.replaceAll((m,d)->Math.round(1000*d/totalRewards)/10d);
-        LOGGER.debug("Simulation finished with block mining distribution {}",minedRewards);
+        LOGGER.info("Simulation finished at block {}",miners.stream().map(Miner::currentHead).max(Comparator.comparing(Block::getHeight)).get());
+        LOGGER.info("Simulation finished with block mining distribution {}",minedRewards);
         return miners.stream().map(Miner::currentHead).max(Comparator.comparing(Block::getHeight)).get();
     }
 
