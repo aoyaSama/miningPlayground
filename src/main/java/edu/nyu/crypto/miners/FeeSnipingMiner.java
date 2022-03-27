@@ -1,7 +1,5 @@
 package edu.nyu.crypto.miners;
 
-import java.util.ArrayList;
-
 import edu.nyu.crypto.blockchain.Block;
 import edu.nyu.crypto.blockchain.NetworkStatistics;
 
@@ -15,9 +13,8 @@ import edu.nyu.crypto.blockchain.NetworkStatistics;
 public class FeeSnipingMiner extends CompliantMiner implements Miner {
     private Block snipeBlock;
     private boolean fork;
-    private int advance = 0;
-    private double successRate = 0.0;
     private int blockHeightTotal = 0;
+    private double successRate = 0.0;
     private double blockValueTotal = 0.0;
     private double averageReward = 0.0;
 
@@ -32,21 +29,20 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
             if (block.getHeight() > currentHead.getHeight()) {
                 this.currentHead = block;
                 calculateAverage(block);
-                // advance = currentHead.getHeight() - otherHead.getHeight();
             }
         }
         else{
            if (block.getHeight() > snipeBlock.getHeight()) {
-                snipeBlock = block;
-                advance = currentHead.getHeight() - snipeBlock.getHeight();
-                
+
+                this.snipeBlock = block;
+                int advance = currentHead.getHeight() - snipeBlock.getHeight();
+
+                // if this miner isn't on a new fork, check block reward to
+                // decide whether to attack or not
                 if (!fork) {
-                    // if (fork2Reward > 1.5) {
+
+                    // if block reward is worth to mine based on success rate
                     if (block.getBlockValue() > this.averageReward/successRate) {
-                        // Should we fork longer?
-                        // 1 is ignoring potential rewards from not forking, so we need to choose something higher
-                        // To simplify we give up if we are more than one block behind.
-                        // Optimal behaviour would be to adapt that to the reward.
                         fork = true;
                     }
                     else {
@@ -56,36 +52,37 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
                     }
                 }
                 else {
+                    // if this miner is in a new fork, then check if we won
+                    // the race to win the sniping test, if not, reset attack
                    if (advance < -1) {
                        fork = false;
                        currentHead = snipeBlock;
                        calculateAverage(block);
                    }
                 }
-
             }
         }
     }
 
 
+    /**
+     * Calculates the average block reward.
+     * This will run throughout the simulation, therefore if 100 iteration of
+     * simulation is ran, then we'll have over 99 iterations worth of data
+     *
+     * @param block the new block to add
+     */
     private void calculateAverage(Block block) {
         this.blockValueTotal += block.getBlockValue();
         this.blockHeightTotal += 1;
         this.averageReward = (double) this.blockValueTotal
                 / this.blockHeightTotal;
-        if(this.averageReward > block.getHeight()){
-
-            // System.out.println("ave" + this.averageReward + " value " + block.getBlockValue());
-            // this.averageReward = 1;
-            // this.averageReward = block.getHeight();
-        }
     }
 
 
     @Override
     public void initialize(Block genesis, NetworkStatistics networkStatistics) {
         fork = false;
-        advance = 0;
         currentHead = genesis;
         snipeBlock = genesis;
     }
