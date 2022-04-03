@@ -85,11 +85,6 @@ public class FeeSnipingMiner extends CompliantMiner implements Miner {
         fork = false;
         currentHead = genesis;
         snipeBlock = genesis;
-
-        // reset after every iteration
-        this.blockValueTotal = 0;
-        this.averageReward = 0;
-        this.blockHeightTotal = 0;
     }
 
 
